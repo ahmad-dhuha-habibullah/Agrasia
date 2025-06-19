@@ -1,0 +1,158 @@
+[
+    {
+        "id": "sawah_lubuk_jering",
+        "name": "Sawah Lubuk Jering",
+        "location": "Kampar, Riau",
+        "area": "75 ha",
+        "geojson": {
+            "type": "Feature",
+            "properties": { "name": "Sawah Lubuk Jering", "id": "sawah_lubuk_jering" },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [101.659682452611, 0.8531664129509287, 0],
+                        [101.6641813830241, 0.8506390227618612, 0],
+                        [101.6692798799974, 0.8487970930695828, 0],
+                        [101.6700938561869, 0.8467836764029701, 0],
+                        [101.6715076974132, 0.8469550695432116, 0],
+                        [101.6705652179933, 0.8501251135049009, 0],
+                        [101.6736927636707, 0.8517529895292109, 0],
+                        [101.6745067872434, 0.854408903721576, 0],
+                        [101.6721076309276, 0.8595493530563534, 0],
+                        [101.672835941127, 0.8619482365464101, 0],
+                        [101.6748495090226, 0.8654180738699053, 0],
+                        [101.6710791347852, 0.8725295887769098, 0],
+                        [101.6684225906342, 0.8752716671702973, 0],
+                        [101.6652520395737, 0.8736009723759705, 0],
+                        [101.6676517277298, 0.8679457574422659, 0],
+                        [101.6577540660852, 0.8643047729125989, 0],
+                        [101.6581826968289, 0.8610488913338035, 0],
+                        [101.6574971161142, 0.859806545239737, 0],
+                        [101.6569829269222, 0.8581357901918396, 0],
+                        [101.6574114405903, 0.8559509535577479, 0],
+                        [101.658654066816, 0.8533805851947661, 0],
+                        [101.659682452611, 0.8531664129509287, 0]
+                    ]
+                ]
+            }
+        },
+        "data_sources": {
+            "lastUpdate": "2025-06-19 14:30 WIB",
+            "ndvi_timeseries_csv": "js/data/timeseries/sawah_lubuk_jering_ndvi.csv",
+            "soil_moisture_timeseries_csv": "js/data/timeseries/sawah_lubuk_jering_soil_moisture.csv",
+            "currentNdmi": "0.68",
+            "waterStressStatus": "None",
+            "currentEvi": "0.79",
+            "ndmi_stats": {"min": 0.65, "med": 0.68, "max": 0.71},
+            "soilPh": "6.2",
+            "airTemp": "29°C",
+            "humidity": "88%",
+            "last24hRain": "10 mm",
+            "weatherForecast": [
+                {"date": "Jun 20", "icon": "cloud-showers-heavy", "temp": "27°C", "desc": "Rainy"},
+                {"date": "Jun 21", "icon": "cloud", "temp": "28°C", "desc": "Cloudy"},
+                {"date": "Jun 22", "icon": "sun", "temp": "30°C", "desc": "Sunny"}
+            ],
+            "irrigationNeeds": "Low (Paddy fields well watered)",
+            "recommendedAction": "DSS: Maintain water levels. Monitor for blast disease given humid conditions.",
+            "solarPanelStatus": "Active (Generating 1.0 kW)",
+            "batteryLevel": "90%",
+            "pumpStatus": "Off",
+            "waterFlow": "0 L/min",
+            "currentPheno": "Tillering Stage (Rice)",
+            "nextPheno": "Panicle Initiation (Est. 2 weeks)",
+            "pestRisk": "Medium",
+            "pestAdvice": "Scout for rice bug. Consider biological control if population increases.",
+            "fertRecommendation": "Second Urea application due next week. Focus on even spread.",
+            "scoutingReports": [
+                {"date": "2025-06-17", "report": "Healthy tillering observed, minimal weed pressure."},
+                {"date": "2025-06-05", "report": "Minor golden apple snail damage, applied eco-friendly bait."}
+            ],
+            "cropType": "Rice",
+            "qualityQuantity": {
+                "brix": "N/A", "ph": "N/A", "kmw": "N/A", "alcohol": "N/A",
+                "bunches": "N/A",
+                "bunchWeight": "Est. 5.5 - 6.0 ton/ha (rough rice)"
+            },
+            "tasks": [
+                {"id": "task_lbj_1", "name": "Weed Control (Manual)", "status": "In progress", "operator": "Local Farmers", "cost": "200€"},
+                {"id": "task_lbj_2", "name": "Fertilization Prep", "status": "Pending", "operator": "Self", "cost": "N/A"}
+            ],
+            "alerts": [
+                {"id": "alert_lbj_1", "type": "weather", "message": "HUMIDITY ALERT: High humidity expected, increased risk of fungal diseases."},
+                {"id": "alert_lbj_2", "type": "pest", "message": "RICE BUG SIGHTING: Increased adult presence, monitor closely."}
+            ],
+            "ndvi_spatial_geojson": "js/data/spatial_overlays/sawah_lubuk_jering_ndvi_spatial.geojson"
+        }
+    },
+    {
+        "id": "sawah_bungaraya",
+        "name": "Sawah Bungaraya",
+        "location": "Siak, Riau",
+        "area": "50 ha",
+        "geojson": {
+            "type": "Feature",
+            "properties": { "name": "Sawah Bungaraya", "id": "sawah_bungaraya" },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [102.0470553878744, 0.9700416078081043, 0],
+                        [102.0620191385021, 0.9552366143419231, 0],
+                        [102.0724602961622, 0.9661092795330495, 0],
+                        [102.0580818979643, 0.9804168044311581, 0],
+                        [102.0470553878744, 0.9700416078081043, 0]
+                    ]
+                ]
+            }
+        },
+        "data_sources": {
+            "lastUpdate": "2025-06-19 13:55 WIB",
+            "ndvi_timeseries_csv": "js/data/timeseries/sawah_bungaraya_ndvi.csv",
+            "soil_moisture_timeseries_csv": "js/data/timeseries/sawah_bungaraya_soil_moisture.csv",
+            "currentNdmi": "0.72",
+            "waterStressStatus": "None",
+            "currentEvi": "0.85",
+            "ndmi_stats": {"min": 0.69, "med": 0.72, "max": 0.75},
+            "soilPh": "6.1",
+            "airTemp": "31°C",
+            "humidity": "80%",
+            "last24hRain": "2 mm",
+            "weatherForecast": [
+                {"date": "Jun 20", "icon": "sun", "temp": "32°C", "desc": "Sunny"},
+                {"date": "Jun 21", "icon": "cloud-sun", "temp": "30°C", "desc": "Partly Cloudy"},
+                {"date": "Jun 22", "icon": "cloud-showers-heavy", "temp": "28°C", "desc": "Light Rain"}
+            ],
+            "irrigationNeeds": "Moderate (Check water levels in paddy fields)",
+            "recommendedAction": "DSS: Monitor evaporation rates. May need supplemental irrigation by end of week.",
+            "solarPanelStatus": "Active (Generating 0.9 kW)",
+            "batteryLevel": "85%",
+            "pumpStatus": "Off",
+            "waterFlow": "0 L/min",
+            "currentPheno": "Reproductive Stage (Rice)",
+            "nextPheno": "Ripening Stage (Est. 3 weeks)",
+            "pestRisk": "Low",
+            "pestAdvice": "Continue general monitoring. No specific threats identified.",
+            "fertRecommendation": "No immediate fertilization needed. Soil nutrient levels are adequate.",
+            "scoutingReports": [
+                {"date": "2025-06-18", "report": "Good panicle development observed. No disease signs."},
+                {"date": "2025-06-03", "report": "Initial report of sheath blight, treatment applied, improving."}
+            ],
+            "cropType": "Rice",
+            "qualityQuantity": {
+                "brix": "N/A", "ph": "N/A", "kmw": "N/A", "alcohol": "N/A",
+                "bunches": "N/A",
+                "bunchWeight": "Est. 6.0 - 6.5 ton/ha (rough rice)"
+            },
+            "tasks": [
+                {"id": "task_bgr_1", "name": "Water Level Check", "status": "Due Today", "operator": "Self", "cost": "N/A"}
+            ],
+            "alerts": [
+                {"id": "alert_bgr_1", "type": "irrigation", "message": "WATER LEVEL LOW: South East section of paddy fields requires attention."},
+                {"id": "alert_bgr_2", "type": "disease", "message": "SHEATH BLIGHT: Resurgence risk due to warm conditions."}
+            ],
+            "ndvi_spatial_geojson": "js/data/spatial_overlays/sawah_bungaraya_ndvi_spatial.geojson"
+        }
+    }
+]
