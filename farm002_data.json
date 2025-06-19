@@ -1,0 +1,16 @@
+{
+    "lastUpdate": "2024-10-26 09:15 WIB",
+    "weatherForecast": [
+        {"date": "Today", "temp": "32°C", "desc": "Sunny", "icon": "sun"},
+        {"date": "Tomorrow", "temp": "30°C", "desc": "Cloudy", "icon": "cloud"},
+        {"date": "Next Day", "temp": "32°C", "desc": "Sunny", "icon": "sun"}
+    ],
+    "currentNdvi": "0.66",
+    "currentNdmi": "0.17",
+    "currentEvi": "0.52",
+    "waterStressStatus": "Moderate",
+    "soilPh": "6.8",
+    "airTemp": "30.1°C",
+    "humidity": "72%",
+    "last24hRain": "0 mm"
+}
