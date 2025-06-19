@@ -3,763 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agrasia - Smart Farming Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            overflow: hidden; /* Prevent body scroll */
-        }
-        #map {
-            height: 100%;
-            width: 100%;
-            border-radius: 0.5rem; /* rounded-lg */
-        }
-        .data-card {
-            background-color: #ffffff;
-            border-radius: 0.75rem; /* rounded-xl */
-            padding: 1.5rem; /* p-6 */
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* shadow-xl */
-            transition: transform 0.2s ease-in-out;
-        }
-        .data-card:hover {
-            transform: translateY(-5px);
-        }
-        .chart-container {
-            position: relative;
-            height: 180px; /* Adjusted height for charts */
-            width: 100%;
-        }
-        /* Custom styles for NDVI overlay legend */
-        .info.legend {
-            background: white;
-            padding: 8px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-        }
-        .info.legend i {
-            width: 18px;
-            height: 18px;
-            float: left;
-            margin-right: 8px;
-            opacity: 0.8;
-            border-radius: 3px; /* Slightly rounded color blocks */
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
+    <title>Agrasia - Farm Management Dashboard</title>
 
-        /* Styles for weather forecast cards */
-        .weather-day-card {
-            background-color: #f8f8f8;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-            flex-grow: 1;
-        }
-        .weather-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: #4CAF50; /* Green tint for weather */
-        }
-    </style>
+    <!-- Google Fonts & Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-50 flex flex-col h-screen">
-    <nav class="bg-green-700 text-white p-4 shadow-lg flex items-center justify-between z-20">
-        <div class="flex items-center space-x-6">
-            <a href="#" class="text-3xl font-bold text-white hover:text-green-100 transition-colors">Agrasia</a>
-            <div class="hidden md:flex space-x-6 text-lg">
-                <a href="#" class="hover:text-green-100 transition-colors py-1 px-3 rounded-md hover:bg-green-600">Dashboard</a>
-                <a href="#" class="hover:text-green-100 transition-colors py-1 px-3 rounded-md hover:bg-green-600">Farms</a>
-                <a href="#" class="hover:text-green-100 transition-colors py-1 px-3 rounded-md hover:bg-green-600">Analytics</a>
-                <a href="#" class="hover:text-green-100 transition-colors py-1 px-3 rounded-md hover:bg-green-600">Reports</a>
-                <a href="#" class="hover:text-green-100 transition-colors py-1 px-3 rounded-md hover:bg-green-600">Settings</a>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation Bar -->
+        <nav class="top-nav">
+            <div class="logo">
+                <i class="fa-solid fa-seedling"></i>
+                <span>Agrasia</span>
             </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="#" class="nav-link"><i class="fas fa-map"></i><span>Farms</span></a>
+                <a href="#" class="nav-link"><i class="fas fa-chart-line"></i><span>Analytics</span></a>
+                <a href="#" class="nav-link"><i class="fas fa-file-alt"></i><span>Reports</span></a>
+                <a href="#" class="nav-link"><i class="fas fa-cog"></i><span>Settings</span></a>
+            </div>
+            <div class="user-profile">
+                <i class="fas fa-bell"></i>
+                <span class="user-name">Welcome, Habib!</span>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Left Sidebar -->
+            <aside class="sidebar">
+                <h3>My Farms</h3>
+                <ul id="farm-list" class="farm-list">
+                    <!-- Farm items will be dynamically inserted here -->
+                </ul>
+            </aside>
+
+            <!-- Dashboard Grid -->
+            <main class="dashboard">
+                <div id="map-container" class="data-card full-width">
+                    <div id="map"></div>
+                     <div id="no-farm-selected-overlay" class="initial-overlay">
+                        <i class="fas fa-hand-pointer"></i>
+                        <p>Please select a farm from the list to view its dashboard.</p>
+                    </div>
+                </div>
+
+                <div id="dashboard-content" class="dashboard-grid hidden">
+                    <!-- Row 1 -->
+                    <div class="data-card">
+                        <h4><i class="fas fa-cloud-sun-rain icon-header"></i>Weather & Site Data</h4>
+                        <div id="weather-forecast-container" class="weather-forecast"></div>
+                        <div class="site-data">
+                            <div>Last updated: <span id="last-update" class="value-text"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="data-card">
+                        <h4><i class="fas fa-satellite-dish icon-header"></i>Vegetation Indices</h4>
+                        <div class="indices-overview">
+                            <div>NDVI: <span id="current-ndvi" class="index-value ndvi"></span></div>
+                            <div>NDMI: <span id="current-ndmi" class="index-value ndmi"></span></div>
+                            <div>EVI: <span id="current-evi" class="index-value evi"></span></div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="indices-chart"></canvas>
+                        </div>
+                        <button id="toggle-spatial-data" class="app-button">Show Spatial Vigor</button>
+                    </div>
+
+                    <div class="data-card">
+                        <h4><i class="fas fa-water icon-header"></i>Soil & In-Situ Data</h4>
+                         <div class="soil-water-overview">
+                            <div>Water Stress: <span id="water-stress-status" class="value-text"></span></div>
+                            <div>Soil pH: <span id="soil-ph" class="value-text"></span></div>
+                            <div>Rain (24h): <span id="last-24h-rain" class="value-text"></span></div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="soil-moisture-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 2 -->
+                    <div class="data-card">
+                        <h4><i class="fas fa-tint icon-header"></i>Irrigation & DSS</h4>
+                        <p id="irrigation-status" class="status-text"></p>
+                        <ul id="irrigation-details" class="details-list"></ul>
+                        <button class="app-button primary">Generate Irrigation Plan</button>
+                    </div>
+                    
+                    <div class="data-card">
+                        <h4><i class="fas fa-chart-pie icon-header"></i>Yield & Quality Est.</h4>
+                         <ul id="yield-details" class="details-list"></ul>
+                         <button class="app-button">View Full Report</button>
+                    </div>
+
+                    <div class="data-card">
+                        <h4><i class="fas fa-tasks icon-header"></i>Task Management</h4>
+                        <ul id="task-list" class="task-list-items"></ul>
+                        <button class="app-button">Manage Tasks</button>
+                    </div>
+
+                    <!-- Row 3 -->
+                     <div class="data-card">
+                        <h4><i class="fas fa-exclamation-triangle icon-header"></i>Active Alerts</h4>
+                        <ul id="alerts-list" class="alerts-list-items"></ul>
+                        <button class="app-button danger">View All Alerts</button>
+                    </div>
+
+                    <div class="data-card">
+                        <h4><i class="fas fa-search-location icon-header"></i>Field Scouting</h4>
+                        <p id="scouting-summary" class="status-text"></p>
+                         <ul id="scouting-notes" class="details-list"></ul>
+                        <button class="app-button">Request Observations</button>
+                    </div>
+                </div>
+            </main>
         </div>
-        <div class="flex items-center space-x-4">
-            <span class="text-lg hidden sm:inline">Welcome, Ahmad Dhuha Habibullah!</span>
-            <button class="bg-green-600 hover:bg-green-800 text-white p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-green-400">
-                <i class="fas fa-user-circle text-2xl"></i>
-            </button>
-        </div>
-    </nav>
-
-    <div class="flex flex-1 overflow-hidden">
-        <aside class="w-full md:w-1/4 lg:w-1/5 bg-white p-6 shadow-lg flex flex-col overflow-y-auto">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3 border-gray-200">My Farms</h2>
-            <ul id="farm-list" class="space-y-4">
-                <!-- Farm list will be populated by JavaScript -->
-            </ul>
-        </aside>
-
-        <main class="flex-1 p-6 flex flex-col space-y-6 overflow-y-auto">
-            <div class="h-1/2 bg-white rounded-xl shadow-xl relative overflow-hidden">
-                <div id="map" class="absolute inset-0"></div>
-                <div id="no-farm-selected-overlay" class="absolute inset-0 bg-gray-200 bg-opacity-90 flex flex-col items-center justify-center rounded-xl text-gray-600 text-xl font-semibold text-center z-10 p-8">
-                    <i class="fas fa-hand-pointer text-4xl mb-4"></i>
-                    <p>Please select a farm from the list to view its comprehensive details.</p>
-                </div>
-            </div>
-
-            <div id="dashboard-data" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <div class="md:col-span-2 lg:col-span-3 xl:col-span-4 text-center text-gray-500 text-xl py-16" id="data-placeholder">
-                    <i class="fas fa-seedling text-5xl text-green-400 mb-4 animate-pulse"></i>
-                    <p>Select a farm to unlock powerful agricultural insights.</p>
-                </div>
-
-                <!-- Data cards will be shown/hidden by JS -->
-                <div id="farm-overview-card" class="data-card hidden">
-                    <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center"><i class="fas fa-tractor mr-3 text-green-500"></i><span id="farm-name"></span></h3>
-                    <div class="grid grid-cols-1 gap-2 text-gray-700 text-sm">
-                        <div><span class="font-semibold">Area:</span> <span id="farm-area"></span></div>
-                        <div><span class="font-semibold">Location:</span> <span id="farm-location"></span></div>
-                        <div><span class="font-semibold">Last Data Sync:</span> <span id="last-update"></span></div>
-                    </div>
-                </div>
-
-                <div id="weather-forecast-card" class="data-card hidden lg:col-span-2 xl:col-span-2">
-                    <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center"><i class="fas fa-cloud-sun-rain mr-3 text-blue-500"></i>Weather Forecast</h3>
-                    <div class="flex justify-around items-center space-x-2 sm:space-x-4">
-                        <div class="weather-day-card">
-                            <p class="text-md font-semibold text-gray-600" id="forecast-day1-date"></p>
-                            <i class="weather-icon" id="forecast-day1-icon"></i>
-                            <p class="text-lg font-bold text-gray-800" id="forecast-day1-temp"></p>
-                            <p class="text-sm text-gray-600" id="forecast-day1-desc"></p>
-                        </div>
-                        <div class="weather-day-card">
-                            <p class="text-md font-semibold text-gray-600" id="forecast-day2-date"></p>
-                            <i class="weather-icon" id="forecast-day2-icon"></i>
-                            <p class="text-lg font-bold text-gray-800" id="forecast-day2-temp"></p>
-                            <p class="text-sm text-gray-600" id="forecast-day2-desc"></p>
-                        </div>
-                        <div class="weather-day-card">
-                            <p class="text-md font-semibold text-gray-600" id="forecast-day3-date"></p>
-                            <i class="weather-icon" id="forecast-day3-icon"></i>
-                            <p class="text-lg font-bold text-gray-800" id="forecast-day3-temp"></p>
-                            <p class="text-sm text-gray-600" id="forecast-day3-desc"></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="satellite-indices-card" class="data-card hidden">
-                    <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center"><i class="fas fa-satellite mr-3 text-purple-500"></i>Satellite Indices</h3>
-                    <div class="chart-container mb-4">
-                        <canvas id="ndviChart"></canvas>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 text-gray-700 text-sm mb-4">
-                        <div><span class="font-semibold">Current NDVI:</span> <span id="current-ndvi" class="font-bold text-green-600"></span></div>
-                        <div><span class="font-semibold">Current NDMI:</span> <span id="current-ndmi" class="font-bold text-blue-600"></span></div>
-                        <div><span class="font-semibold">Current EVI:</span> <span id="current-evi" class="font-bold text-yellow-600"></span></div>
-                        <div><span class="font-semibold">Water Stress:</span> <span id="water-stress-status" class="font-bold text-red-600"></span></div>
-                    </div>
-                    <p class="text-xs text-gray-500 mb-2">Min/Med/Max values (from time-series):</p>
-                    <div class="grid grid-cols-3 gap-2 text-gray-700 text-xs font-semibold">
-                        <span>NDVI: <span id="ndvi-min"></span>/<span id="ndvi-med"></span>/<span id="ndvi-max"></span></span>
-                        <span>NDMI: <span id="ndmi-min"></span>/<span id="ndmi-med"></span>/<span id="ndmi-max"></span></span>
-                    </div>
-                    <button id="toggle-ndvi-spatial" class="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out text-sm">
-                        Show NDVI Map Overlay
-                    </button>
-                </div>
-
-                <div id="soil-insitu-card" class="data-card hidden">
-                    <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center"><i class="fas fa-flask mr-3 text-orange-500"></i>Soil & In-Situ Data</h3>
-                    <div class="chart-container mb-4">
-                        <canvas id="soilMoistureChart"></canvas>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 text-gray-700 text-sm">
-                        <div><span class="font-semibold">Soil pH:</span> <span id="soil-ph" class="font-bold"></span></div>
-                        <div><span class="font-semibold">Air Temp:</span> <span id="air-temp" class="font-bold"></span></div>
-                        <div><span class="font-semibold">Humidity:</span> <span id="humidity" class="font-bold"></span></div>
-                        <div><span class="font-semibold">Rain 24h:</span> <span id="last-rain" class="font-bold"></span></div>
-                    </div>
-                </div>
-
-                <div id="irrigation-dss-card" class="data-card hidden">
-                    <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center"><i class="fas fa-water mr-3 text-green-500"></i>Irrigation & DSS</h3>
-                    <div class="mb-4">
-                        <span class="font-semibold text-gray-700">Irrigation Needs:</span>
-                        <span id="irrigation-needs" class="font-bold text-blue-600 text-lg ml-2"></span>
-                    </div>
-                    <div class="mb-6">
-                        <span class="font-semibold text-gray-700">DSS Recommendation:</span>
-                        <p id="recommended-action" class="text-green-700 font-bold "></p>
-                    </div>
-                    <h4 class="text-lg font-semibold text-gray-800 mt-6 mb-3">Solar System Status</h4>
-                    <ul class="space-y-2 text-gray-700 text-sm">
-                        <li><span class="font-medium">Panels:</span> <span id="solar-panel-status" class="font-bold"></span></li>
-                        <li><span class="font-medium">Battery:</span> <span id="battery-level" class="font-bold"></span></li>
-                        <li><span class="font-medium">Pump:</span> <span id="pump-status" class="font-bold"></span></li>
-                        <li><span class="font-medium">Water Flow:</span> <span id="water-flow" class="font-bold"></span></li>
-                    </ul>
-                    <button class="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out" onclick="controlIrrigation()">
-                        <i class="fas fa-play-circle mr-2"></i>Control Irrigation
-                    </button>
-                    <button class="mt-3 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out text-sm" onclick="generatePrescriptionMap()">
-                        <i class="fas fa-map-marked-alt mr-2"></i>Generate Prescription Map
-                    </button>
-                </div>
-
-                <div id="quality-quantity-card" class="data-card hidden">
-                    <h3 class="text-xl font-bold text-red-800 mb-4 flex items-center"><i class="fas fa-chart-line mr-3 text-red-500"></i>Yield & Quality Est.</h3>
-                    <div class="text-gray-700 text-sm">
-                        <h4 class="font-semibold mb-2" id="crop-type-est"></h4>
-                        <div class="grid grid-cols-2 gap-3 mb-3">
-                            <div><span class="font-medium">°Brix:</span> <span id="brix-val" class="font-bold text-lg"></span></div>
-                            <div><span class="font-medium">pH:</span> <span id="ph-val" class="font-bold text-lg"></span></div>
-                            <div><span class="font-medium">Kmw:</span> <span id="kmw-val" class="font-bold text-lg"></span></div>
-                            <div><span class="font-medium">Est. Alcohol:</span> <span id="alcohol-val" class="font-bold text-lg"></span></div>
-                        </div>
-                        <p class="text-sm"><span class="font-medium">Est. Bunches/plant:</span> <span id="bunches-val" class="font-bold"></span></p>
-                        <p class="text-sm"><span class="font-medium">Est. Bunch Weight:</span> <span id="bunch-weight-val" class="font-bold"></span></p>
-                    </div>
-                </div>
-
-                <div id="task-management-card" class="data-card hidden">
-                    <h3 class="text-xl font-bold text-teal-800 mb-4 flex items-center"><i class="fas fa-tasks mr-3 text-teal-500"></i>Task Management</h3>
-                    <p class="text-gray-700 text-sm font-semibold mb-3">Pending Tasks:</p>
-                    <ul class="space-y-3 text-gray-700 text-sm" id="pending-tasks"></ul>
-                    <button class="mt-6 w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out text-sm" onclick="viewAllTasks()">
-                        <i class="fas fa-list-alt mr-2"></i>View All Tasks
-                    </button>
-                </div>
-
-                <div id="alerts-card" class="data-card hidden">
-                    <h3 class="text-xl font-bold text-red-700 mb-4 flex items-center"><i class="fas fa-bell mr-3 text-red-500 animate-pulse"></i>Active Alerts</h3>
-                    <ul class="space-y-3 text-red-800 text-sm font-semibold" id="active-alerts"></ul>
-                    <button class="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out text-sm" onclick="viewAllAlerts()">
-                        <i class="fas fa-eye mr-2"></i>View All Alerts
-                    </button>
-                </div>
-
-                <div id="field-operations-card" class="data-card hidden">
-                    <h3 class="text-xl font-bold text-yellow-800 mb-4 flex items-center"><i class="fas fa-map-marker-alt mr-3 text-yellow-500"></i>Field Scouting</h3>
-                    <p class="text-gray-700 text-sm mb-4">Record and manage field observations.</p>
-                    <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-800 font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out" onclick="recordObservation()">
-                        <i class="fas fa-plus-circle mr-2"></i>Record New Observation
-                    </button>
-                    <div class="mt-6">
-                        <h4 class="text-lg font-medium text-gray-800 mb-2">Recent Reports</h4>
-                        <ul class="list-disc list-inside text-gray-700 text-sm space-y-1" id="scouting-reports"></ul>
-                        <p class="text-sm text-gray-500 mt-2 hidden" id="no-scouting-data">No recent reports for this farm.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
     </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // --- Leaflet Map Initialization ---
-        const map = L.map('map').setView([0.5333, 101.4500], 12); // Centered on Pekanbaru, Riau
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // --- Global variables ---
-        let ndviOverlayLayer = null;
-        let ndviLegend = null;
-        let mapLayers = {}; // To store Leaflet layers by farm ID
-        let currentFarmLayer = null; // To store the currently selected farm's Leaflet layer
-        let allFarmsData = []; // To store data from farms.json
-
-        // --- Chart.js Instances ---
-        let ndviChartInstance = null;
-        let soilMoistureChartInstance = null;
-
-        function createChart(canvasId, type, labels, datasets) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (Chart.getChart(canvasId)) { // Destroy existing chart instance if it exists
-                Chart.getChart(canvasId).destroy();
-            }
-            return new Chart(ctx, {
-                type: type,
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Important for fixed height container
-                    plugins: {
-                        legend: { display: true, position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) { label += ': '; }
-                                    if (context.parsed.y !== null) { label += context.parsed.y.toFixed(2); }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false // Allow negative values for indices if needed
-                        }
-                    }
-                }
-            });
-        }
-        
-        // --- Functions to Update Dashboard ---
-        function updateDashboard(farm) {
-            // Hide placeholder and show data cards
-            document.getElementById('data-placeholder').classList.add('hidden');
-            const dataCards = document.querySelectorAll('#dashboard-data .data-card');
-            dataCards.forEach(card => card.classList.remove('hidden'));
-            document.getElementById('no-farm-selected-overlay').classList.add('hidden');
-
-            // Reset NDVI spatial overlay and legend
-            removeNdviSpatialLayer();
-            document.getElementById('toggle-ndvi-spatial').textContent = 'Show NDVI Map Overlay';
-
-            const data = farm.data_sources;
-
-            // Update Farm Overview
-            document.getElementById('farm-name').textContent = farm.name;
-            document.getElementById('farm-area').textContent = farm.area;
-            document.getElementById('farm-location').textContent = farm.location;
-            document.getElementById('last-update').textContent = data.lastUpdate;
-
-            // Update Weather Forecast
-            data.weatherForecast.forEach((forecast, index) => {
-                const i = index + 1;
-                document.getElementById(`forecast-day${i}-date`).textContent = forecast.date;
-                document.getElementById(`forecast-day${i}-icon`).className = `weather-icon fas fa-${forecast.icon}`;
-                document.getElementById(`forecast-day${i}-temp`).textContent = forecast.temp;
-                document.getElementById(`forecast-day${i}-desc`).textContent = forecast.desc;
-            });
-            
-            // --- MODIFIED: Process embedded CSV data for charts ---
-            function parseCsvData(csvText) {
-                const lines = csvText.trim().split('\n');
-                const labels = [];
-                const values = [];
-                for (let i = 1; i < lines.length; i++) {
-                    const [label, value] = lines[i].split(',');
-                    labels.push(label);
-                    values.push(parseFloat(value));
-                }
-                return { labels, values };
-            }
-
-            // Update Satellite Indices
-            if (data.indices_timeseries_csv) {
-                const lines = data.indices_timeseries_csv.trim().split('\n');
-                const headers = lines.shift().split(',');
-                const ndviIndex = headers.indexOf('ndvi');
-                const ndmiIndex = headers.indexOf('ndmi');
-                
-                const labels = [];
-                const ndviValues = [];
-                const ndmiValues = [];
-
-                lines.forEach(line => {
-                    const values = line.split(',');
-                    labels.push(values[0]);
-                    ndviValues.push(parseFloat(values[ndviIndex]));
-                    ndmiValues.push(parseFloat(values[ndmiIndex]));
-                });
-                
-                const datasets = [
-                    { label: 'NDVI', data: ndviValues, borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.2)', tension: 0.3, fill: false },
-                    { label: 'NDMI', data: ndmiValues, borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.2)', tension: 0.3, fill: false }
-                ];
-
-                ndviChartInstance = createChart('ndviChart', 'line', labels, datasets);
-
-                document.getElementById('current-ndvi').textContent = data.currentNdvi;
-                document.getElementById('current-ndmi').textContent = data.currentNdmi;
-                document.getElementById('current-evi').textContent = data.currentEvi;
-                document.getElementById('water-stress-status').textContent = data.waterStressStatus;
-
-                document.getElementById('ndvi-min').textContent = Math.min(...ndviValues).toFixed(2);
-                document.getElementById('ndvi-med').textContent = (ndviValues.reduce((a, b) => a + b, 0) / ndviValues.length).toFixed(2);
-                document.getElementById('ndvi-max').textContent = Math.max(...ndviValues).toFixed(2);
-                document.getElementById('ndmi-min').textContent = data.ndmi_stats.min.toFixed(2);
-                document.getElementById('ndmi-med').textContent = data.ndmi_stats.med.toFixed(2);
-                document.getElementById('ndmi-max').textContent = data.ndmi_stats.max.toFixed(2);
-            }
-
-            // Update Soil & In-Situ Data
-            if (data.soil_moisture_timeseries_csv) {
-                const { labels, values } = parseCsvData(data.soil_moisture_timeseries_csv);
-                const datasets = [{ label: 'Soil Moisture (%)', data: values, borderColor: '#F97316', backgroundColor: 'rgba(249, 115, 22, 0.2)', tension: 0.3, fill: false }];
-                soilMoistureChartInstance = createChart('soilMoistureChart', 'line', labels, datasets);
-            }
-
-            document.getElementById('soil-ph').textContent = data.soilPh;
-            document.getElementById('air-temp').textContent = data.airTemp;
-            document.getElementById('humidity').textContent = data.humidity;
-            document.getElementById('last-rain').textContent = data.last24hRain;
-
-            // Update Irrigation & DSS
-            document.getElementById('irrigation-needs').textContent = data.irrigationNeeds;
-            document.getElementById('recommended-action').textContent = data.recommendedAction;
-            document.getElementById('solar-panel-status').textContent = data.solarPanelStatus;
-            document.getElementById('battery-level').textContent = data.batteryLevel;
-            document.getElementById('pump-status').textContent = data.pumpStatus;
-            document.getElementById('water-flow').textContent = data.waterFlow;
-
-            // Update Quality & Quantity
-            document.getElementById('crop-type-est').textContent = `Crop: ${data.cropType}`;
-            document.getElementById('brix-val').textContent = data.qualityQuantity.brix;
-            document.getElementById('ph-val').textContent = data.qualityQuantity.ph;
-            document.getElementById('kmw-val').textContent = data.qualityQuantity.kmw;
-            document.getElementById('alcohol-val').textContent = data.qualityQuantity.alcohol;
-            document.getElementById('bunches-val').textContent = data.qualityQuantity.bunches;
-            document.getElementById('bunch-weight-val').textContent = data.qualityQuantity.bunchWeight;
-
-            // Update Task Management
-            const pendingTasksList = document.getElementById('pending-tasks');
-            pendingTasksList.innerHTML = '';
-            if (data.tasks && data.tasks.length > 0) {
-                data.tasks.forEach(task => {
-                    const li = document.createElement('li');
-                    li.className = 'border-l-4 border-teal-500 pl-3 py-1';
-                    li.innerHTML = `<div class="font-bold text-teal-700">${task.name}</div>
-                                    <div class="text-xs text-gray-600">Operator: ${task.operator} | Cost: ${task.cost}</div>`;
-                    pendingTasksList.appendChild(li);
-                });
-            } else {
-                pendingTasksList.innerHTML = '<li class="text-gray-500">No pending tasks.</li>';
-            }
-
-            // Update Alerts
-            const activeAlertsList = document.getElementById('active-alerts');
-            activeAlertsList.innerHTML = '';
-            if (data.alerts && data.alerts.length > 0) {
-                data.alerts.forEach(alert => {
-                    const li = document.createElement('li');
-                     let bgColor = 'bg-red-100';
-                    let borderColor = 'border-red-400';
-                    let textColor = 'text-red-800';
-                    let icon = 'fas fa-exclamation-circle';
-
-                    if (alert.type === 'weather') {
-                        bgColor = 'bg-blue-100'; borderColor = 'border-blue-400'; textColor = 'text-blue-800'; icon = 'fas fa-cloud-sun-rain';
-                    } else if (alert.type === 'irrigation') {
-                        bgColor = 'bg-orange-100'; borderColor = 'border-orange-400'; textColor = 'text-orange-800'; icon = 'fas fa-exclamation-triangle';
-                    }
-                    li.className = `p-3 rounded-lg border-l-4 ${bgColor} ${borderColor} ${textColor}`;
-                    li.innerHTML = `<i class="${icon} mr-2"></i>${alert.message}`;
-                    activeAlertsList.appendChild(li);
-                });
-            } else {
-                activeAlertsList.innerHTML = '<li class="text-gray-500 p-2">No active alerts.</li>';
-            }
-
-            // Update Field Operations & Scouting
-            const scoutingReportsList = document.getElementById('scouting-reports');
-            scoutingReportsList.innerHTML = '';
-            if (data.scoutingReports && data.scoutingReports.length > 0) {
-                document.getElementById('no-scouting-data').classList.add('hidden');
-                scoutingReportsList.classList.remove('hidden');
-                data.scoutingReports.forEach(report => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<span class="font-semibold">${report.date}:</span> ${report.report}`;
-                    scoutingReportsList.appendChild(li);
-                });
-            } else {
-                scoutingReportsList.classList.add('hidden');
-                document.getElementById('no-scouting-data').classList.remove('hidden');
-            }
-
-            // Store current farm for NDVI spatial toggle
-            map.currentSelectedFarm = farm;
-        }
-
-        // --- NDVI Spatial Overlay Functions ---
-        function getColor(d) {
-            return d > 0.8 ? '#1a9850' : d > 0.7 ? '#66bd63' : d > 0.6 ? '#a6d96a' : d > 0.5 ? '#fdae61' : d > 0.4 ? '#f46d43' : '#d73027';
-        }
-
-        function styleNdvi(feature) {
-            return {
-                fillColor: getColor(feature.properties.ndvi_value),
-                weight: 1,
-                opacity: 0.5,
-                color: 'white',
-                fillOpacity: 0.7
-            };
-        }
-
-        function addNdviSpatialLayer(farm) {
-            if (ndviOverlayLayer) map.removeLayer(ndviOverlayLayer);
-            if (farm && farm.data_sources.ndvi_spatial_geojson) {
-                // MODIFIED: Use the GeoJSON object directly instead of fetching
-                ndviOverlayLayer = L.geoJSON(farm.data_sources.ndvi_spatial_geojson, {
-                    style: styleNdvi
-                }).addTo(map);
-
-                if (!ndviLegend) {
-                    ndviLegend = L.control({ position: 'bottomright' });
-                    ndviLegend.onAdd = function(map) {
-                        var div = L.DomUtil.create('div', 'info legend');
-                        var grades = [0.4, 0.5, 0.6, 0.7, 0.8];
-                        div.innerHTML += '<b>NDVI Vigor</b><br>';
-                        for (var i = 0; i < grades.length; i++) {
-                            div.innerHTML += '<i style="background:' + getColor(grades[i] + 0.01) + '"></i> ' + grades[i].toFixed(2) + (grades[i + 1] ? '&ndash;' + grades[i + 1].toFixed(2) + '<br>' : '+');
-                        }
-                        return div;
-                    };
-                }
-                ndviLegend.addTo(map);
-            } else {
-                console.warn("No NDVI spatial data available for this farm.");
-            }
-        }
-
-        function removeNdviSpatialLayer() {
-            if (ndviOverlayLayer) {
-                map.removeLayer(ndviOverlayLayer);
-                ndviOverlayLayer = null;
-            }
-            if (ndviLegend && map.hasControl(ndviLegend)) {
-                map.removeControl(ndviLegend);
-            }
-        }
-        
-        // --- Map & Farm List Population ---
-        function loadFarmData() {
-            // --- FIX: REMOVED fetch call and embedded data directly ---
-            // This is the main fix. Instead of fetching an external 'farms.json',
-            // we define the data right here in the script.
-            allFarmsData = [
-                {
-                    "id": "farm001",
-                    "name": "Riau Central Palm Estate",
-                    "area": "120 Ha",
-                    "location": "Kampar, Riau",
-                    "geojson": {
-                        "type": "Feature",
-                        "properties": {},
-                        "geometry": {
-                            "type": "Polygon",
-                            "coordinates": [
-                                [[101.35, 0.60], [101.40, 0.60], [101.40, 0.55], [101.35, 0.55], [101.35, 0.60]]
-                            ]
-                        }
-                    },
-                    "data_sources": {
-                        "lastUpdate": "2024-10-26 08:00 WIB",
-                        "weatherForecast": [
-                            {"date": "Today", "temp": "31°C", "desc": "Partly Cloudy", "icon": "cloud-sun"},
-                            {"date": "Tomorrow", "temp": "29°C", "desc": "Showers", "icon": "cloud-showers-heavy"},
-                            {"date": "Next Day", "temp": "32°C", "desc": "Sunny", "icon": "sun"}
-                        ],
-                        // --- ADDED: Embedded CSV data as a string ---
-                        "indices_timeseries_csv": `date,ndvi,ndmi\n2024-08-01,0.65,0.22\n2024-08-15,0.68,0.25\n2024-09-01,0.72,0.28\n2024-09-15,0.75,0.26\n2024-10-01,0.78,0.29\n2024-10-15,0.81,0.31`,
-                        "soil_moisture_timeseries_csv": `time,moisture\n08:00,35.2\n10:00,34.8\n12:00,33.9\n14:00,32.5\n16:00,31.8`,
-                        "currentNdvi": "0.81",
-                        "currentNdmi": "0.31",
-                        "currentEvi": "0.65",
-                        "waterStressStatus": "Low",
-                        "ndmi_stats": {"min": 0.22, "med": 0.27, "max": 0.31},
-                        "soilPh": "6.2",
-                        "airTemp": "29.5°C",
-                        "humidity": "78%",
-                        "last24hRain": "5 mm",
-                        "irrigationNeeds": "2,500 m³",
-                        "recommendedAction": "Irrigate Zone B and C for 45 minutes.",
-                        "solarPanelStatus": "Optimal (4.5 kWh)",
-                        "batteryLevel": "92%",
-                        "pumpStatus": "Standby",
-                        "waterFlow": "0 L/min",
-                        "cropType": "Oil Palm",
-                        "qualityQuantity": {"brix": "N/A", "ph": "N/A", "kmw": "N/A", "alcohol": "N/A", "bunches": "22/tree", "bunchWeight": "25 kg"},
-                        "tasks": [{"name": "Fertilize Zone A", "status": "Pending", "operator": "Agus", "cost": "Rp 1.500.000"}],
-                        "alerts": [{"type": "irrigation", "message": "High water stress detected in Zone D."}, {"type": "weather", "message": "Heavy rain forecast for tomorrow."}],
-                        "scoutingReports": [{"date": "2024-10-24", "report": "Minor pest activity in block 5."}],
-                        // --- ADDED: Embedded GeoJSON for spatial NDVI ---
-                        "ndvi_spatial_geojson": { "type": "FeatureCollection", "features": [
-                            { "type": "Feature", "properties": { "ndvi_value": 0.85 }, "geometry": { "type": "Polygon", "coordinates": [[[101.35, 0.60], [101.375, 0.60], [101.375, 0.575], [101.35, 0.575], [101.35, 0.60]]] } },
-                            { "type": "Feature", "properties": { "ndvi_value": 0.75 }, "geometry": { "type": "Polygon", "coordinates": [[[101.375, 0.60], [101.40, 0.60], [101.40, 0.575], [101.375, 0.575], [101.375, 0.60]]] } },
-                            { "type": "Feature", "properties": { "ndvi_value": 0.65 }, "geometry": { "type": "Polygon", "coordinates": [[[101.35, 0.575], [101.375, 0.575], [101.375, 0.55], [101.35, 0.55], [101.35, 0.575]]] } },
-                            { "type": "Feature", "properties": { "ndvi_value": 0.45 }, "geometry": { "type": "Polygon", "coordinates": [[[101.375, 0.575], [101.40, 0.575], [101.40, 0.55], [101.375, 0.55], [101.375, 0.575]]] } }
-                        ] }
-                    }
-                },
-                {
-                    "id": "farm002",
-                    "name": "Siak Grape Vineyard",
-                    "area": "15 Ha",
-                    "location": "Siak, Riau",
-                    "geojson": {
-                        "type": "Feature",
-                        "properties": {},
-                        "geometry": {
-                            "type": "Polygon",
-                            "coordinates": [
-                                [[101.50, 0.65], [101.52, 0.65], [101.52, 0.63], [101.50, 0.63], [101.50, 0.65]]
-                            ]
-                        }
-                    },
-                    "data_sources": {
-                        "lastUpdate": "2024-10-26 09:15 WIB",
-                        "weatherForecast": [
-                             {"date": "Today", "temp": "32°C", "desc": "Sunny", "icon": "sun"},
-                            {"date": "Tomorrow", "temp": "30°C", "desc": "Cloudy", "icon": "cloud"},
-                            {"date": "Next Day", "temp": "32°C", "desc": "Sunny", "icon": "sun"}
-                        ],
-                        "indices_timeseries_csv": `date,ndvi,ndmi\n2024-08-01,0.55,0.12\n2024-08-15,0.58,0.15\n2024-09-01,0.62,0.18\n2024-09-15,0.65,0.16\n2024-10-01,0.68,0.19\n2024-10-15,0.66,0.17`,
-                        "soil_moisture_timeseries_csv": `time,moisture\n09:00,28.1\n11:00,27.5\n13:00,26.2\n15:00,25.1`,
-                        "currentNdvi": "0.66",
-                        "currentNdmi": "0.17",
-                        "currentEvi": "0.52",
-                        "waterStressStatus": "Moderate",
-                        "ndmi_stats": {"min": 0.12, "med": 0.16, "max": 0.19},
-                        "soilPh": "6.8",
-                        "airTemp": "30.1°C",
-                        "humidity": "72%",
-                        "last24hRain": "0 mm",
-                        "irrigationNeeds": "800 m³",
-                        "recommendedAction": "Monitor soil moisture. Irrigate if below 25%.",
-                        "solarPanelStatus": "Optimal (4.8 kWh)",
-                        "batteryLevel": "95%",
-                        "pumpStatus": "Standby",
-                        "waterFlow": "0 L/min",
-                        "cropType": "Grape (Red Globe)",
-                        "qualityQuantity": {"brix": "18.2", "ph": "3.4", "kmw": "14.5", "alcohol": "12.1%", "bunches": "35/plant", "bunchWeight": "0.8 kg"},
-                        "tasks": [],
-                        "alerts": [{"type": "irrigation", "message": "Soil moisture approaching critical level."}],
-                        "scoutingReports": [],
-                         "ndvi_spatial_geojson": { "type": "FeatureCollection", "features": [
-                            { "type": "Feature", "properties": { "ndvi_value": 0.72 }, "geometry": { "type": "Polygon", "coordinates": [[[101.50, 0.65], [101.51, 0.65], [101.51, 0.64], [101.50, 0.64], [101.50, 0.65]]] } },
-                            { "type": "Feature", "properties": { "ndvi_value": 0.68 }, "geometry": { "type": "Polygon", "coordinates": [[[101.51, 0.65], [101.52, 0.65], [101.52, 0.64], [101.51, 0.64], [101.51, 0.65]]] } },
-                            { "type": "Feature", "properties": { "ndvi_value": 0.61 }, "geometry": { "type": "Polygon", "coordinates": [[[101.50, 0.64], [101.51, 0.64], [101.51, 0.63], [101.50, 0.63], [101.50, 0.64]]] } },
-                            { "type": "Feature", "properties": { "ndvi_value": 0.55 }, "geometry": { "type": "Polygon", "coordinates": [[[101.51, 0.64], [101.52, 0.64], [101.52, 0.63], [101.51, 0.63], [101.51, 0.64]]] } }
-                        ] }
-                    }
-                }
-            ];
-            
-            const farmListElement = document.getElementById('farm-list');
-            farmListElement.innerHTML = ''; // Clear list before populating
-            
-            // This part of the logic remains the same.
-            allFarmsData.forEach(farm => {
-                const geojsonLayer = L.geoJSON(farm.geojson, {
-                    style: () => ({ color: "#3B82F6", weight: 2, opacity: 0.8, fillColor: "#BFDBFE", fillOpacity: 0.5 }),
-                    onEachFeature: (feature, layer) => {
-                        layer.bindPopup(`<b>${farm.name}</b><br>${farm.area}<br>${farm.location}`);
-                        layer.on('click', () => {
-                            if (currentFarmLayer) {
-                                currentFarmLayer.setStyle({ fillColor: "#BFDBFE" }); // Reset previous
-                            }
-                            layer.setStyle({ fillColor: "#10B981" }); // Highlight selected (green)
-                            currentFarmLayer = layer;
-                            updateDashboard(farm);
-                            map.fitBounds(layer.getBounds(), {padding: [50, 50]});
-                        });
-                    }
-                }).addTo(map);
-                mapLayers[farm.id] = geojsonLayer;
-
-                const listItem = document.createElement('li');
-                listItem.className = 'cursor-pointer p-3 rounded-md hover:bg-gray-100 transition duration-150 ease-in-out text-gray-700 font-medium';
-                listItem.textContent = farm.name;
-                listItem.onclick = () => {
-                    if (mapLayers[farm.id]) {
-                        mapLayers[farm.id].fire('click');
-                    }
-                };
-                farmListElement.appendChild(listItem);
-            });
-            map.fitBounds(L.featureGroup(Object.values(mapLayers)).getBounds(), {padding: [20, 20]});
-
-        }
-
-        // --- Initial State (No farm selected) ---
-        function setInitialState() {
-             document.getElementById('data-placeholder').classList.remove('hidden');
-             document.getElementById('no-farm-selected-overlay').classList.remove('hidden');
-             const dataCards = document.querySelectorAll('#dashboard-data .data-card');
-             dataCards.forEach(card => card.classList.add('hidden'));
-        }
-
-        // --- Event Listeners and Mock Functions ---
-        document.addEventListener('DOMContentLoaded', () => {
-            setInitialState();
-            loadFarmData();
-            
-            document.getElementById('toggle-ndvi-spatial').addEventListener('click', function() {
-                if (map.currentSelectedFarm) {
-                    if (ndviOverlayLayer) {
-                        removeNdviSpatialLayer();
-                        this.textContent = 'Show NDVI Map Overlay';
-                    } else {
-                        addNdviSpatialLayer(map.currentSelectedFarm);
-                        this.textContent = 'Hide NDVI Map Overlay';
-                    }
-                } else {
-                    alert('Please select a farm area first to view NDVI spatial data.');
-                }
-            });
-        });
-        
-        // --- Mock Action Functions ---
-        function showModal(message) {
-            // A simple replacement for alert()
-            const modal = document.createElement('div');
-            modal.style.position = 'fixed';
-            modal.style.left = '0';
-            modal.style.top = '0';
-            modal.style.width = '100%';
-            modal.style.height = '100%';
-            modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            modal.style.display = 'flex';
-            modal.style.justifyContent = 'center';
-            modal.style.alignItems = 'center';
-            modal.style.zIndex = '1000';
-            
-            const modalContent = document.createElement('div');
-            modalContent.style.background = 'white';
-            modalContent.style.padding = '30px';
-            modalContent.style.borderRadius = '10px';
-            modalContent.style.textAlign = 'center';
-            modalContent.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
-            
-            const text = document.createElement('p');
-            text.textContent = message;
-            text.style.marginBottom = '20px';
-            
-            const closeButton = document.createElement('button');
-            closeButton.textContent = 'OK';
-            closeButton.style.padding = '10px 20px';
-            closeButton.style.border = 'none';
-            closeButton.style.borderRadius = '5px';
-            closeButton.style.background = '#28a745';
-            closeButton.style.color = 'white';
-            closeButton.style.cursor = 'pointer';
-            
-            modalContent.appendChild(text);
-            modalContent.appendChild(closeButton);
-            modal.appendChild(modalContent);
-            document.body.appendChild(modal);
-            
-            closeButton.onclick = () => document.body.removeChild(modal);
-            modal.onclick = (e) => {
-                if(e.target === modal) {
-                    document.body.removeChild(modal);
-                }
-            };
-        }
-
-
-        function controlIrrigation() { showModal('Initiating irrigation sequence based on DSS recommendations! (Mock Action)'); }
-        function generatePrescriptionMap() { showModal('Generating variable rate irrigation prescription map... (Mock Action)'); }
-        function recordObservation() { showModal('Opening field observation form for new report... (Mock Action)'); }
-        function viewAllTasks() { showModal('Navigating to Task Management page... (Mock Action)'); }
-        function viewAllAlerts() { showModal('Navigating to Alerts History page... (Mock Action)'); }
-
-    </script>
+    <!-- Your Custom Script -->
+    <script src="script.js"></script>
 </body>
 </html>
