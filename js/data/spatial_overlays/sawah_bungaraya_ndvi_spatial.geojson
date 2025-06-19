@@ -1,0 +1,37 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": { "ndvi_value": 0.70, "zone": "Medium Vigor" },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [102.050, 0.965],
+                        [102.055, 0.965],
+                        [102.055, 0.968],
+                        [102.050, 0.968],
+                        [102.050, 0.965]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": { "ndvi_value": 0.80, "zone": "High Vigor" },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [102.060, 0.970],
+                        [102.065, 0.970],
+                        [102.065, 0.973],
+                        [102.060, 0.973],
+                        [102.060, 0.970]
+                    ]
+                ]
+            }
+        }
+    ]
+}
