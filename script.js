@@ -3,6 +3,7 @@ let map;
 let ndviOverlayLayer = null;
 let ndviLegend = null;
 let currentFarmLayer = null; // Holds the currently displayed farm boundary
+let mapLayers = {}; // To store Leaflet layers by farm ID
 let allFarmsData = []; // Caches the initial farms.json data
 let indicesChart = null; // Chart.js instance for vegetation indices
 let soilMoistureChart = null; // Chart.js instance for soil moisture
@@ -10,6 +11,12 @@ let currentFarmId = null; // The ID of the currently selected farm
 
 // --- Application Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Remove the initial map overlay to allow direct interaction
+    const overlay = document.getElementById('no-farm-selected-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
     initMap();
     loadFarms();
     setupEventListeners();
@@ -46,7 +53,7 @@ async function loadFarms() {
         const response = await fetch('farms.json');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         allFarmsData = await response.json();
-        populateFarmList(allFarmsData);
+        populateFarms(allFarmsData);
     } catch (error) {
         console.error("Fatal Error: Could not load farms.json.", error);
         alert("Application could not start. Please check that farms.json is in the root project folder.");
@@ -75,50 +82,85 @@ async function fetchAllFarmData(farmId) {
     }
 }
 
-
 // --- UI Population & Updates ---
-function populateFarmList(farms) {
+
+/**
+ * Populates both the farm list and map layers, linking them together.
+ * @param {Array} farms - Array of farm objects from farms.json
+ */
+function populateFarms(farms) {
     const farmListElement = document.getElementById('farm-list');
     farmListElement.innerHTML = ''; 
 
     farms.forEach(farm => {
+        // Create map layer
+        const geojsonLayer = L.geoJSON(farm.geojson, {
+            style: { color: "#3B82F6", weight: 2, opacity: 0.8, fillColor: "#BFDBFE", fillOpacity: 0.5 }
+        }).bindPopup(`<b>${farm.name}</b>`).on('click', () => {
+            handleFarmSelection(farm.id);
+        });
+        
+        mapLayers[farm.id] = geojsonLayer;
+        geojsonLayer.addTo(map);
+
+        // Create sidebar list item
         const listItem = document.createElement('li');
         listItem.className = 'farm-list-item';
         listItem.textContent = farm.name;
         listItem.dataset.farmId = farm.id;
-        listItem.addEventListener('click', () => handleFarmSelection(farm));
+        listItem.addEventListener('click', () => handleFarmSelection(farm.id));
         farmListElement.appendChild(listItem);
     });
+    
+    // Fit map to show all farms initially
+    const group = new L.featureGroup(Object.values(mapLayers));
+    map.fitBounds(group.getBounds().pad(0.1));
 }
 
-async function handleFarmSelection(farm) {
-    if (currentFarmId === farm.id) return; 
-    currentFarmId = farm.id;
+
+/**
+ * Central function to handle farm selection from any source (list or map).
+ * @param {string} selectedFarmId - The ID of the farm to select.
+ */
+async function handleFarmSelection(selectedFarmId) {
+    if (currentFarmId === selectedFarmId) return; 
+    currentFarmId = selectedFarmId;
     
+    // Update sidebar UI
     document.querySelectorAll('.farm-list-item').forEach(item => {
-        item.classList.toggle('selected', item.dataset.farmId === farm.id);
+        item.classList.toggle('selected', item.dataset.farmId === currentFarmId);
     });
 
-    updateMapForFarm(farm);
+    // Update map layer styles
+    for (const farmId in mapLayers) {
+        if (farmId === currentFarmId) {
+            mapLayers[farmId].setStyle({ fillColor: "#10B981", color: "#15803d", weight: 3 }); // Highlight selected
+        } else {
+            mapLayers[farmId].setStyle({ fillColor: "#BFDBFE", color: "#3B82F6", weight: 2 }); // Reset others
+        }
+    }
+    
+    // Zoom to selected farm
+    if(mapLayers[currentFarmId]) {
+        map.fitBounds(mapLayers[currentFarmId].getBounds().pad(0.1));
+    }
 
-    const farmData = await fetchAllFarmData(farm.id);
+    // Fetch and display data
+    const farmData = await fetchAllFarmData(currentFarmId);
     if (!farmData) {
         return;
     }
 
-    document.getElementById('no-farm-selected-overlay').classList.add('hidden');
+    // Show the dashboard content area
     document.getElementById('dashboard-content').classList.remove('hidden');
 
     updateDashboardUI(farmData);
 }
 
 function updateDashboardUI(data) {
-    // These first three functions can remain simple as their structure hasn't changed
     updateWeatherCard(data.weatherForecast, data.lastUpdate);
     updateIndicesCard(data.currentNdvi, data.currentNdmi, data.currentEvi, data.indicesData);
     updateSoilWaterCard(data.waterStressStatus, data.soilPh, data.last24hRain, data.soilData);
-    
-    // These functions are updated to generate the new, visually appealing HTML
     updateIrrigationCard(data.irrigation);
     updateYieldCard(data.yield);
     updateTasksCard(data.tasks);
@@ -127,8 +169,6 @@ function updateDashboardUI(data) {
 }
 
 // --- Card Update Functions ---
-
-// Base cards (no major style change)
 function updateWeatherCard(forecasts, lastUpdate) {
     const container = document.getElementById('weather-forecast-container');
     container.innerHTML = '';
@@ -156,8 +196,6 @@ function updateSoilWaterCard(stress, ph, rain, soilData) {
         { label: 'Soil Moisture (%)', data: soilData.datasets['moisture'], borderColor: '#f97316', tension: 0.4, fill: false }
     ]);
 }
-
-// Visually enhanced cards
 function updateIrrigationCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(4)');
     card.innerHTML = `
@@ -182,7 +220,6 @@ function updateIrrigationCard(data) {
         </div>
     `;
 }
-
 function updateYieldCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(5)');
     card.innerHTML = `
@@ -204,7 +241,6 @@ function updateYieldCard(data) {
         </div>
     `;
 }
-
 function updateTasksCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(6)');
     let tasksHtml = '<li class="text-center text-gray-500 py-4">No pending tasks.</li>';
@@ -229,7 +265,6 @@ function updateTasksCard(data) {
         </div>
     `;
 }
-
 function updateAlertsCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(7)');
      let alertsHtml = '<li class="text-center text-gray-500 py-4">No active alerts.</li>';
@@ -252,7 +287,6 @@ function updateAlertsCard(data) {
         </div>
     `;
 }
-
 function updateScoutingCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(8)');
     let reportsHtml = '<li class="text-center text-gray-500 py-4">No recent reports.</li>';
@@ -275,19 +309,6 @@ function updateScoutingCard(data) {
 }
 
 // --- Map & Spatial Layer Management ---
-function updateMapForFarm(farm) {
-    if (currentFarmLayer) map.removeLayer(currentFarmLayer);
-    removeNdviSpatialLayer();
-    document.getElementById('toggle-spatial-data').textContent = 'Show Spatial Vigor';
-
-    const farmBoundary = L.geoJSON(farm.geojson, {
-        style: { color: "#16a34a", weight: 3, opacity: 0.8, fillColor: "#86efac", fillOpacity: 0.4 }
-    }).bindPopup(`<b>${farm.name}</b>`).addTo(map);
-
-    currentFarmLayer = farmBoundary;
-    map.fitBounds(farmBoundary.getBounds(), { padding: [50, 50] });
-}
-
 async function addNdviSpatialLayer(farm) {
     try {
         const response = await fetch(`spatial/${farm.id}_spatial.json`);
@@ -311,7 +332,7 @@ async function addNdviSpatialLayer(farm) {
             ndviLegend.onAdd = () => {
                 const div = L.DomUtil.create('div', 'info legend');
                 const grades = [0.4, 0.5, 0.6, 0.7, 0.8];
-                div.innerHTML += '<h4>NDVI Vigor</h4>';
+                div.innerHTML = '<h4>NDVI Vigor</h4>';
                 for (let i = 0; i < grades.length; i++) {
                     div.innerHTML += `<i style="background:${getNdviColor(grades[i] + 0.01)}"></i> ${grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+')}`;
                 }
@@ -350,7 +371,6 @@ function parseCsv(csvText) {
 
 function createChart(canvasId, type, labels, datasets) {
     const ctx = document.getElementById(canvasId).getContext('2d');
-    // Destroy existing chart if it exists
     const existingChart = Chart.getChart(canvasId);
     if (existingChart) {
         existingChart.destroy();
