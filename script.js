@@ -33,25 +33,18 @@ function initMap() {
 
 // --- Event Listeners ---
 function setupEventListeners() {
-    const toggleButton = document.getElementById('toggle-spatial-data');
-    if (toggleButton) {
-        toggleButton.addEventListener('click', function() {
-            if (currentFarmId) {
-                const farm = allFarmsData.find(f => f.id === currentFarmId);
-                if (ndviOverlayLayer) {
-                    removeNdviSpatialLayer();
-                    this.textContent = 'Show Spatial Vigor';
-                } else {
-                    addNdviSpatialLayer(farm);
-                    this.textContent = 'Hide Spatial Vigor';
-                }
+    document.getElementById('toggle-spatial-data').addEventListener('click', function() {
+        if (currentFarmId) {
+            const farm = allFarmsData.find(f => f.id === currentFarmId);
+            if (ndviOverlayLayer) {
+                removeNdviSpatialLayer();
+                this.textContent = 'Show Spatial Vigor';
             } else {
-                console.warn('No farm selected for spatial data toggle.');
+                addNdviSpatialLayer(farm);
+                this.textContent = 'Hide Spatial Vigor';
             }
-        });
-    } else {
-        console.error('Toggle spatial data button not found.');
-    }
+        }
+    });
 }
 
 // --- Data Fetching and Processing ---
@@ -69,26 +62,10 @@ async function loadFarms() {
 
 async function fetchAllFarmData(farmId) {
     try {
-        console.log('Fetching data for farm:', farmId);
-        const dataUrl = `${farmId}_data.json`;
-        const soilUrl = `timeseries/${farmId}_soil.csv`;
-        const indicesUrl = `timeseries/${farmId}_indices.csv`;
-        console.log('Data URL:', dataUrl);
-        console.log('Soil URL:', soilUrl);
-        console.log('Indices URL:', indicesUrl);
-
-        const dataPromise = fetch(dataUrl).then(res => {
-            if (!res.ok) throw new Error(`Failed to fetch ${dataUrl}: ${res.status} ${res.statusText}`);
-            return res.json();
-        });
-        const soilPromise = fetch(soilUrl).then(res => {
-            if (!res.ok) throw new Error(`Failed to fetch ${soilUrl}: ${res.status} ${res.statusText}`);
-            return res.text();
-        });
-        const indicesPromise = fetch(indicesUrl).then(res => {
-            if (!res.ok) throw new Error(`Failed to fetch ${indicesUrl}: ${res.status} ${res.statusText}`);
-            return res.text();
-        });
+        // RE-CORRECTED: Added subfolder paths back to fetch calls
+        const dataPromise = fetch(`${farmId}_data.json`).then(res => res.json());
+        const soilPromise = fetch(`timeseries/${farmId}_soil.csv`).then(res => res.text());
+        const indicesPromise = fetch(`timeseries/${farmId}_indices.csv`).then(res => res.text());
         const extraData = getMockExtraData(farmId);
 
         const [data, soilCsv, indicesCsv] = await Promise.all([dataPromise, soilPromise, indicesPromise]);
@@ -109,10 +86,6 @@ async function fetchAllFarmData(farmId) {
 // --- UI Population & Updates ---
 function populateFarms(farms) {
     const farmListElement = document.getElementById('farm-list');
-    if (!farmListElement) {
-        console.error('Farm list element not found.');
-        return;
-    }
     farmListElement.innerHTML = ''; 
 
     farms.forEach(farm => {
@@ -138,7 +111,6 @@ function populateFarms(farms) {
 }
 
 async function handleFarmSelection(selectedFarmId) {
-    console.log('Selected farm ID:', selectedFarmId);
     if (currentFarmId === selectedFarmId) return; 
     currentFarmId = selectedFarmId;
     
@@ -154,84 +126,60 @@ async function handleFarmSelection(selectedFarmId) {
         }
     }
     
-    if (mapLayers[currentFarmId]) {
+    if(mapLayers[currentFarmId]) {
         map.fitBounds(mapLayers[currentFarmId].getBounds().pad(0.1));
-    } else {
-        console.warn(`No map layer found for farm ${currentFarmId}.`);
     }
 
     const farmData = await fetchAllFarmData(currentFarmId);
     if (!farmData) {
-        console.error(`Failed to load data for farm ${currentFarmId}.`);
         return;
     }
 
-    const dashboardContent = document.getElementById('dashboard-content');
-    if (dashboardContent) {
-        dashboardContent.classList.remove('hidden');
-        updateDashboardUI(farmData);
-    } else {
-        console.error('Dashboard content element not found.');
-    }
+    document.getElementById('dashboard-content').classList.remove('hidden');
+    updateDashboardUI(farmData);
 }
 
 function updateDashboardUI(data) {
-    try {
-        updateWeatherCard(data.weatherForecast, data.lastUpdate);
-        updateIndicesCard(data.currentNdvi, data.currentNdmi, data.currentEvi, data.indicesData);
-        updateSoilWaterCard(data.waterStressStatus, data.soilPh, data.last24hRain, data.soilData);
-        updateIrrigationCard(data.irrigation);
-        updateYieldCard(data.yield);
-        updateTasksCard(data.tasks);
-        updateAlertsCard(data.alerts);
-        updateScoutingCard(data.scouting);
-    } catch (error) {
-        console.error('Error updating dashboard UI:', error);
-    }
+    updateWeatherCard(data.weatherForecast, data.lastUpdate);
+    updateIndicesCard(data.currentNdvi, data.currentNdmi, data.currentEvi, data.indicesData);
+    updateSoilWaterCard(data.waterStressStatus, data.soilPh, data.last24hRain, data.soilData);
+    updateIrrigationCard(data.irrigation);
+    updateYieldCard(data.yield);
+    updateTasksCard(data.tasks);
+    updateAlertsCard(data.alerts);
+    updateScoutingCard(data.scouting);
 }
 
 // --- Card Update Functions ---
 function updateWeatherCard(forecasts, lastUpdate) {
     const container = document.getElementById('weather-forecast-container');
-    if (!container) return console.error('Weather forecast container not found.');
     container.innerHTML = '';
     forecasts.forEach(forecast => {
         container.innerHTML += `<div class="weather-day"><div class="day">${forecast.date}</div><i class="icon fas fa-${forecast.icon}"></i><div class="temp">${forecast.temp}</div><div class="desc">${forecast.desc}</div></div>`;
     });
-    const lastUpdateElement = document.getElementById('last-update');
-    if (lastUpdateElement) lastUpdateElement.textContent = lastUpdate;
+    document.getElementById('last-update').textContent = lastUpdate;
 }
-
 function updateIndicesCard(ndvi, ndmi, evi, indicesData) {
-    const ndviElement = document.getElementById('current-ndvi');
-    const ndmiElement = document.getElementById('current-ndmi');
-    const eviElement = document.getElementById('current-evi');
-    if (ndviElement) ndviElement.textContent = ndvi;
-    if (ndmiElement) ndmiElement.textContent = ndmi;
-    if (eviElement) eviElement.textContent = evi;
+    document.getElementById('current-ndvi').textContent = ndvi;
+    document.getElementById('current-ndmi').textContent = ndmi;
+    document.getElementById('current-evi').textContent = evi;
     if (indicesChart) indicesChart.destroy();
     indicesChart = createChart('indices-chart', 'line', indicesData.labels, [
         { label: 'NDVI', data: indicesData.datasets['ndvi'], borderColor: '#16a34a', tension: 0.4, fill: false },
         { label: 'NDMI', data: indicesData.datasets['ndmi'], borderColor: '#2563eb', tension: 0.4, fill: false }
     ]);
 }
-
 function updateSoilWaterCard(stress, ph, rain, soilData) {
-    const stressElement = document.getElementById('water-stress-status');
-    const phElement = document.getElementById('soil-ph');
-    const rainElement = document.getElementById('last-24h-rain');
-    if (stressElement) stressElement.textContent = stress;
-    if (phElement) stressElement.textContent = ph;
-    if (rainElement) rainElement.textContent = rain;
+    document.getElementById('water-stress-status').textContent = stress;
+    document.getElementById('soil-ph').textContent = ph;
+    document.getElementById('last-24h-rain').textContent = rain;
     if (soilMoistureChart) soilMoistureChart.destroy();
     soilMoistureChart = createChart('soil-moisture-chart', 'line', soilData.labels, [
         { label: 'Soil Moisture (%)', data: soilData.datasets['moisture'], borderColor: '#f97316', tension: 0.4, fill: false }
     ]);
 }
-
 function updateIrrigationCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(4)');
-    if (!card) return console.error('Irrigation card not found.');
     card.innerHTML = `
         <h4 class="card-title">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon-header" viewBox="0 0 24 24" fill="currentColor"><path d="M12.928 2.333c-4.439-.433-8.893 2.155-10.835 6.271-1.353 2.868-1.353 6.22 0 9.088 1.942 4.116 6.396 6.7 10.835 6.271.936-.091 1.839-.36 2.667-.777l-1.123-1.684c-.49.255-.999.435-1.544.529-3.792.368-7.464-1.87-8.998-5.325-.929-2.3-1.071-4.88-.42-7.299 1.564-6.042 7.747-8.814 13.488-5.718l1.454-2.181c-1.072-.693-2.274-1.12-3.524-1.255zm6.545 1.706-1.454 2.181c5.741 3.096 7.052 9.672 5.488 15.714-.626 2.419-1.928 4.629-3.76 6.331l1.107 1.66c2.253-2.094 3.84-4.853 4.542-7.808s.119-6.236-1.823-10.353c-1.942-4.116-6.396-6.7-10.835-6.271l-.835-1.252z"/><path d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 14a6 6 0 1 1 0-12 6 6 0 0 1 0 12z"/><path d="M13 7h-2v5.414l3.293 3.293 1.414-1.414L13 11.586V7z"/></svg>
@@ -254,10 +202,8 @@ function updateIrrigationCard(data) {
         </div>
     `;
 }
-
 function updateYieldCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(5)');
-    if (!card) return console.error('Yield card not found.');
     card.innerHTML = `
         <h4 class="card-title">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon-header" viewBox="0 0 24 24" fill="currentColor"><path d="M5 22h14v-2H5v2zm14-12v8H5v-8h14zm2-2H3v12h18V8zM19 4h-4V3h-2v1H9V3H7v1H5C3.897 4 3 4.897 3 6v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zM7 14h2v-4H7v4zm4 0h2v-2h-2v2zm4 0h2v-6h-2v6z"/></svg>
@@ -277,10 +223,8 @@ function updateYieldCard(data) {
         </div>
     `;
 }
-
 function updateTasksCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(6)');
-    if (!card) return console.error('Tasks card not found.');
     let tasksHtml = '<li class="text-center text-gray-500 py-4">No pending tasks.</li>';
     if (data.length > 0) {
         tasksHtml = data.map(task => `
@@ -303,15 +247,13 @@ function updateTasksCard(data) {
         </div>
     `;
 }
-
 function updateAlertsCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(7)');
-    if (!card) return console.error('Alerts card not found.');
-    let alertsHtml = '<li class="text-center text-gray-500 py-4">No active alerts.</li>';
-    if (data.length > 0) {
+     let alertsHtml = '<li class="text-center text-gray-500 py-4">No active alerts.</li>';
+    if(data.length > 0){
         alertsHtml = data.map(alert => {
             const typeClass = `alert-${alert.type}`;
-            return `<li class="alert-item ${typeClass}"><i class="fas fa-exclamation-circle mr-2"></i>${alert.message}</li>`;
+            return `<li class="alert-item ${typeClass}"><i class="fas fa-exclamation-circle mr-2"></i>${alert.message}</li>`
         }).join('');
     }
     card.innerHTML = `
@@ -327,12 +269,10 @@ function updateAlertsCard(data) {
         </div>
     `;
 }
-
 function updateScoutingCard(data) {
     const card = document.querySelector('#dashboard-content > div:nth-of-type(8)');
-    if (!card) return console.error('Scouting card not found.');
     let reportsHtml = '<li class="text-center text-gray-500 py-4">No recent reports.</li>';
-    if (data.length > 0) {
+    if(data.length > 0){
         reportsHtml = data.map(report => `<li class="scouting-report"><strong>${report.date}:</strong> ${report.report}</li>`).join('');
     }
     card.innerHTML = `
@@ -353,35 +293,23 @@ function updateScoutingCard(data) {
 // --- Map & Spatial Layer Management ---
 async function addNdviSpatialLayer(farm) {
     try {
-        console.log(`Fetching KMZ spatial data for farm ${farm.id}: spatial/${farm.id}_spatial.kmz`);
-        const response = await fetch(`spatial/${farm.id}_spatial.kmz`);
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
-        const arrayBuffer = await response.arrayBuffer();
+        // RE-CORRECTED: Added subfolder path back to fetch call
+        const response = await fetch(`spatial/${farm.id}_spatial.json`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const geojson = await response.json();
 
-        // Remove existing layer
-        if (ndviOverlayLayer) {
-            map.removeLayer(ndviOverlayLayer);
-            ndviOverlayLayer = null;
-        }
+        if (ndviOverlayLayer) map.removeLayer(ndviOverlayLayer);
 
-        // Parse KMZ using leaflet-omnivore
-        ndviOverlayLayer = omnivore.kml.parse(arrayBuffer, null, L.geoJSON({
+        ndviOverlayLayer = L.geoJSON(geojson, {
             style: feature => ({
-                fillColor: getNdviColor(feature.properties.value || 0.5), // Default to 0.5 if no value
+                fillColor: getNdviColor(feature.properties.value),
                 weight: 1,
                 opacity: 0.5,
                 color: 'white',
                 fillOpacity: 0.7
-            }),
-            pointToLayer: (feature, latlng) => L.marker(latlng), // Handle points if present
-            onEachFeature: (feature, layer) => {
-                if (feature.properties && feature.properties.name) {
-                    layer.bindPopup(`<b>${feature.properties.name}</b><br>NDVI: ${feature.properties.value || 'N/A'}`);
-                }
-            }
-        })).addTo(map);
-
-        // Add or update legend
+            })
+        }).addTo(map);
+        
         if (!ndviLegend) {
             ndviLegend = L.control({ position: 'bottomright' });
             ndviLegend.onAdd = () => {
@@ -393,53 +321,39 @@ async function addNdviSpatialLayer(farm) {
                 }
                 return div;
             };
-            ndviLegend.addTo(map);
         }
+        ndviLegend.addTo(map);
+
     } catch (error) {
-        console.error(`Error adding NDVI spatial layer for farm ${farm.id}:`, error);
-        alert(`Could not load spatial data. Make sure 'spatial/${farm.id}_spatial.kmz' exists and is accessible.`);
+        console.error("Error adding NDVI spatial layer:", error);
+        alert(`Could not load spatial data. Make sure 'spatial/${farm.id}_spatial.json' exists.`);
     }
 }
 
 function removeNdviSpatialLayer() {
-    if (ndviOverlayLayer) {
-        map.removeLayer(ndviOverlayLayer);
-        ndviOverlayLayer = null;
-    }
-    if (ndviLegend && map.hasControl(ndviLegend)) {
-        map.removeControl(ndviLegend);
-        ndviLegend = null;
-    }
+    if (ndviOverlayLayer) map.removeLayer(ndviOverlayLayer);
+    if (ndviLegend && map.hasControl(ndviLegend)) map.removeControl(ndviLegend);
 }
 
 // --- Utility Functions ---
 function parseCsv(csvText) {
-    try {
-        const lines = csvText.trim().split('\n').filter(line => line);
-        const headers = lines.shift().split(',').map(h => h.trim());
-        const labels = [];
-        const datasets = {};
-        headers.slice(1).forEach(header => { datasets[header] = []; });
-        lines.forEach(line => {
-            const values = line.split(',');
-            labels.push(values[0].trim());
-            headers.slice(1).forEach((header, index) => {
-                datasets[header].push(parseFloat(values[index + 1]));
-            });
+    const lines = csvText.trim().split('\n').filter(line => line);
+    const headers = lines.shift().split(',').map(h => h.trim());
+    const labels = [];
+    const datasets = {};
+    headers.slice(1).forEach(header => { datasets[header] = []; });
+    lines.forEach(line => {
+        const values = line.split(',');
+        labels.push(values[0].trim());
+        headers.slice(1).forEach((header, index) => {
+            datasets[header].push(parseFloat(values[index + 1]));
         });
-        return { labels, datasets };
-    } catch (error) {
-        console.error('Error parsing CSV:', error);
-        return { labels: [], datasets: {} };
-    }
+    });
+    return { labels, datasets };
 }
 
 function createChart(canvasId, type, labels, datasets) {
-    const ctx = document.getElementById(canvasId)?.getContext('2d');
-    if (!ctx) {
-        console.error(`Canvas element ${canvasId} not found.`);
-        return null;
-    }
+    const ctx = document.getElementById(canvasId).getContext('2d');
     const existingChart = Chart.getChart(canvasId);
     if (existingChart) {
         existingChart.destroy();
@@ -458,11 +372,7 @@ function createChart(canvasId, type, labels, datasets) {
 }
 
 function getNdviColor(d) {
-    return d > 0.8 ? '#1a9850' :
-           d > 0.7 ? '#66bd63' :
-           d > 0.6 ? '#a6d96a' :
-           d > 0.5 ? '#fdae61' :
-           d > 0.4 ? '#f46d43' : '#d73027';
+    return d > 0.8 ? '#1a9850' : d > 0.7 ? '#66bd63' : d > 0.6 ? '#a6d96a' : d > 0.5 ? '#fdae61' : d > 0.4 ? '#f46d43' : '#d73027';
 }
 
 function getMockExtraData(farmId) {
