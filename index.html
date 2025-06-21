@@ -4,21 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agrasia - Farm Management Dashboard</title>
-
-    <!-- Google Fonts & Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Top Navigation Bar -->
         <nav class="top-nav">
+            <div id="menu-toggle" class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
             <div class="logo">
                 <i class="fa-solid fa-seedling"></i>
                 <span>Agrasia</span>
@@ -32,35 +28,30 @@
             </div>
             <div class="user-profile">
                 <i class="fas fa-bell"></i>
-                <span class="user-name">Welcome, Habib!</span>
-                <i class="fas fa-user-circle"></i>
+                <span class="user-name" id="user-name-display"></span>
+                <button id="logout-button" class="app-button danger logout-btn">Logout</button>
             </div>
         </nav>
 
-        <!-- Main Content Area -->
         <div class="main-content">
-            <!-- Left Sidebar -->
-            <aside class="sidebar">
-                <h3>My Farms</h3>
-                <ul id="farm-list" class="farm-list">
-                    <!-- Farm items will be dynamically inserted here -->
-                </ul>
-            </aside>
+<aside class="sidebar" id="sidebar">
+    <div id="sidebar-toggle" class="sidebar-toggle">
+        <i class="fas fa-chevron-left"></i>
+    </div>
 
-            <!-- Dashboard Grid -->
+    <h3>My Farms</h3>
+    <ul id="farm-list" class="farm-list">
+        </ul>
+</aside>
+
             <main class="dashboard">
                 <div id="map-container" class="data-card full-width">
                     <div id="map"></div>
-                     <div id="no-farm-selected-overlay" class="initial-overlay">
-                        <i class="fas fa-hand-pointer"></i>
-                        <p>Please select a farm from the list to view its dashboard.</p>
-                    </div>
                 </div>
 
                 <div id="dashboard-content" class="dashboard-grid hidden">
-                    <!-- Row 1 -->
                     <div class="data-card">
-                        <h4><i class="fas fa-cloud-sun-rain icon-header"></i>Weather & Site Data</h4>
+                        <h4 class="card-title"><i class="fas fa-cloud-sun-rain icon-header"></i>Weather & Site Data</h4>
                         <div id="weather-forecast-container" class="weather-forecast"></div>
                         <div class="site-data">
                             <div>Last updated: <span id="last-update" class="value-text"></span></div>
@@ -68,7 +59,7 @@
                     </div>
 
                     <div class="data-card">
-                        <h4><i class="fas fa-satellite-dish icon-header"></i>Vegetation Indices</h4>
+                        <h4 class="card-title"><i class="fas fa-satellite-dish icon-header"></i>Vegetation Indices</h4>
                         <div class="indices-overview">
                             <div>NDVI: <span id="current-ndvi" class="index-value ndvi"></span></div>
                             <div>NDMI: <span id="current-ndmi" class="index-value ndmi"></span></div>
@@ -77,11 +68,13 @@
                         <div class="chart-container">
                             <canvas id="indices-chart"></canvas>
                         </div>
-                        <button id="toggle-spatial-data" class="app-button">Show Spatial Vigor</button>
+                        <div class="card-actions">
+                             <button id="toggle-spatial-data" class="app-button">Show Spatial Vigor</button>
+                        </div>
                     </div>
 
                     <div class="data-card">
-                        <h4><i class="fas fa-water icon-header"></i>Soil & In-Situ Data</h4>
+                        <h4 class="card-title"><i class="fas fa-water icon-header"></i>Soil & In-Situ Data</h4>
                          <div class="soil-water-overview">
                             <div>Water Stress: <span id="water-stress-status" class="value-text"></span></div>
                             <div>Soil pH: <span id="soil-ph" class="value-text"></span></div>
@@ -91,50 +84,53 @@
                             <canvas id="soil-moisture-chart"></canvas>
                         </div>
                     </div>
-                    
-                    <!-- Row 2 -->
+
+                    <div class="data-card" id="irrigation-card">
+                        </div>
+
+                    <div class="data-card" id="yield-card">
+                         </div>
+
                     <div class="data-card">
-                        <h4><i class="fas fa-tint icon-header"></i>Irrigation & DSS</h4>
-                        <p id="irrigation-status" class="status-text"></p>
-                        <ul id="irrigation-details" class="details-list"></ul>
-                        <button class="app-button primary">Generate Irrigation Plan</button>
-                    </div>
-                    
-                    <div class="data-card">
-                        <h4><i class="fas fa-chart-pie icon-header"></i>Yield & Quality Est.</h4>
-                         <ul id="yield-details" class="details-list"></ul>
-                         <button class="app-button">View Full Report</button>
+                        <h4 class="card-title"><i class="fas fa-tasks icon-header"></i>Task Management</h4>
+                        <div class="card-content">
+                            <ul id="task-list" class="details-list-col"></ul>
+                        </div>
+                        <div class="card-actions">
+                            <button class="app-button">Manage Tasks</button>
+                        </div>
                     </div>
 
                     <div class="data-card">
-                        <h4><i class="fas fa-tasks icon-header"></i>Task Management</h4>
-                        <ul id="task-list" class="task-list-items"></ul>
-                        <button class="app-button">Manage Tasks</button>
-                    </div>
-
-                    <!-- Row 3 -->
-                     <div class="data-card">
-                        <h4><i class="fas fa-exclamation-triangle icon-header"></i>Active Alerts</h4>
-                        <ul id="alerts-list" class="alerts-list-items"></ul>
-                        <button class="app-button danger">View All Alerts</button>
+                        <h4 class="card-title"><i class="fas fa-exclamation-triangle icon-header"></i>Active Alerts</h4>
+                        <div class="card-content">
+                            <ul id="alerts-list" class="details-list-col"></ul>
+                        </div>
+                        <div class="card-actions">
+                            <button class="app-button danger">View All Alerts</button>
+                        </div>
                     </div>
 
                     <div class="data-card">
-                        <h4><i class="fas fa-search-location icon-header"></i>Field Scouting</h4>
-                        <p id="scouting-summary" class="status-text"></p>
-                         <ul id="scouting-notes" class="details-list"></ul>
-                        <button class="app-button">Request Observations</button>
+                        <h4 class="card-title"><i class="fas fa-search-location icon-header"></i>Field Scouting</h4>
+                        <div class="card-content">
+                             <h5 class="sub-title">Recent Reports</h5>
+                             <ul id="scouting-notes" class="details-list-col"></ul>
+                        </div>
+                        <div class="card-actions">
+                            <button class="app-button">Request Observations</button>
+                        </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Your Custom Script -->
+
+    <script src="api.js"></script>
+    <script src="map.js"></script>
+    <script src="ui.js"></script>
     <script src="script.js"></script>
 </body>
-</html>

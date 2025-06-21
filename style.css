@@ -177,7 +177,7 @@ body {
     display: none !important;
 }
 
-/* --- Data Cards (Revised) --- */
+/* --- Data Cards */
 .data-card {
     background-color: var(--card-bg-color);
     border-radius: var(--border-radius);
@@ -195,6 +195,7 @@ body {
 .data-card.full-width {
     grid-column: 1 / -1;
     height: 450px;
+    margin-bottom: 24px;
 }
 
 .card-title {
@@ -377,3 +378,284 @@ body {
     opacity: 0.8;
     border-radius: 3px;
 }
+
+/* --- Authentication Page Styles --- */
+.auth-body {
+    background-color: var(--background-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+.auth-card {
+    background-color: var(--card-bg-color);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    border-top: 4px solid var(--primary-color);
+}
+
+.logo-auth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    color: var(--primary-color);
+}
+
+.logo-auth .fa-seedling {
+    font-size: 2.5rem;
+}
+
+.logo-auth h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+.auth-button {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1rem;
+    margin-top: 12px;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 24px;
+    color: var(--text-secondary);
+}
+
+.auth-switch a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: var(--danger-color);
+    background-color: #fee2e2;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+.success-message {
+    color: var(--primary-dark);
+    background-color: #dcfce7;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+
+/* --- Responsive Design --- */
+
+/* For Tablets and smaller desktops (<= 1024px) */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+    .nav-link span {
+        display: none; /* Hide text labels on nav links */
+    }
+    .nav-link {
+        padding: 8px 12px;
+    }
+    .logo span {
+        display: none; /* Hide "Agrasia" text next to logo */
+    }
+}
+
+/* For Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
+    body {
+        overflow: auto; /* Allow scrolling on mobile */
+    }
+
+    .main-content {
+        flex-direction: column; /* Stack sidebar and dashboard vertically */
+        height: auto;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -100%; /* Hide sidebar off-screen by default */
+        top: 64px; /* Position below the top nav */
+        height: calc(100% - 64px);
+        z-index: 1100;
+        transition: left 0.3s ease-in-out;
+        width: 250px;
+        box-shadow: var(--shadow-lg);
+    }
+    .sidebar.active {
+        left: 0; /* Show sidebar when active */
+    }
+
+    .dashboard {
+        width: 100%;
+        padding: 16px;
+    }
+
+    .top-nav {
+        padding: 0 16px;
+    }
+
+    /* Hamburger Menu */
+    .menu-toggle {
+        display: block; /* Show the hamburger menu icon */
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .nav-links {
+        display: none; /* Hide the main nav links on mobile */
+    }
+
+    .user-profile .user-name {
+        display: none; /* Hide the welcome message text */
+    }
+    .logout-btn {
+        font-size: 0.8rem;
+        padding: 6px 8px;
+    }
+
+    .dashboard-grid {
+        /* Adjust grid for smaller screens */
+        grid-template-columns: 1fr; /* Single column layout */
+        gap: 16px;
+    }
+    .data-card.full-width {
+        height: 350px; /* Adjust map height on mobile */
+    }
+
+    .weather-forecast {
+        flex-wrap: wrap; /* Allow weather days to wrap */
+    }
+    .weather-day {
+        flex-basis: 45%;
+        margin-bottom: 8px;
+    }
+}
+
+/* Hide hamburger menu on desktop */
+.menu-toggle {
+    display: none;
+}
+
+/* --- Collapsible Sidebar & Responsive Styles --- */
+.sidebar-toggle {
+    position: absolute;
+    top: 50%;
+    left: 289px; /* (Sidebar width 260px) - (Button width 32px / 2) */
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1200;
+    transition: all 0.3s ease-in-out;
+}
+.sidebar-toggle:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+.sidebar-toggle i {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Styles for when the sidebar is collapsed */
+.sidebar-collapsed .sidebar {
+    width: 0;
+    padding: 0;
+    border-right: none;
+}
+/* Move the button to the edge of the screen when collapsed */
+.sidebar-collapsed .sidebar-toggle {
+    left: 10px;
+}
+/* Rotate the arrow icon when collapsed */
+.sidebar-collapsed .sidebar-toggle i {
+    transform: rotate(180deg);
+}
+.sidebar-collapsed .dashboard {
+    margin-left: 0; /* Make dashboard take full width */
+}
+
+/* Smooth transitions */
+.sidebar, .dashboard {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hide the new desktop toggle on mobile */
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: none;
+    }
+}
+
+
+/* Make the dashboard expand to fill the space */
+.sidebar-collapsed .dashboard {
+    margin-left: 80px;
+}
+
+/* Smooth transitions for a polished feel */
+.sidebar, .dashboard {
+    transition: all 0.3s ease-in-out;
+}
+
+
+
