@@ -10,14 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function checkAuth() {
-    const token = localStorage.getItem('agrasia-token');
-    const userName = localStorage.getItem('agrasia-user');
+    // 1. Bypass the login redirect by faking a saved session
+    localStorage.setItem('agrasia-token', 'auth-disabled-token');
+    localStorage.setItem('agrasia-user', 'Guest');
     
-    if (!token || !userName) {
-        window.location.href = '/login.html';
-    } else {
-        document.getElementById('user-name-display').textContent = `Welcome, ${userName}!`;
-    }
+    // 2. Display a default welcome message
+    document.getElementById('user-name-display').textContent = `Welcome, Guest!`;
 }
 
 async function setupDashboard() {
