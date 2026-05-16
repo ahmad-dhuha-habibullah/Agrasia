@@ -83,14 +83,12 @@ app.post('/api/auth/login', async (req, res) => {
         const { email, password } = req.body;
 
         // --- ADD THIS ADMIN BYPASS ---
-        if (email === "admin@agrasia.com" && password === "admin123") {
+        if (email === "lisma@agrasia.com" && password === "lisma123") {
             const accessToken = jwt.sign({ name: "Admin", email }, JWT_SECRET, { expiresIn: '1h' });
             return res.json({ accessToken, userName: "Admin" });
         }
         // -----------------------------
 
-
-        
         const users = await readUsers();
         const user = users.find(u => u.email === email);
 
