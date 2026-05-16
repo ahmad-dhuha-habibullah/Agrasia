@@ -29,22 +29,11 @@ const writeUsers = async (users) => {
     await fs.writeFile(USERS_DB_PATH, JSON.stringify(users, null, 2));
 };
 
-// Middleware to verify JWT
+// Middleware to verify JWT (Disabled for open access)
 const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
-
-    if (token == null) {
-        return res.sendStatus(401); // Unauthorized
-    }
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.sendStatus(403); // Forbidden
-        }
-        req.user = user;
-        next();
-    });
+    // Automatically approve every request without checking the token
+    req.user = { name: "Guest", email: "guest@agrasia.com" };
+    next(); 
 };
 
 
